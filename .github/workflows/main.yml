@@ -7,8 +7,7 @@ on:
   pull_request:
     branches:
       - main
-
-  workflow_dispatch:  
+  workflow_dispatch: 
 
 jobs:
   auto-commit:
@@ -23,27 +22,25 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install Dependencies
         run: npm install
 
       - name: Run Linter and Format Code
         run: |
-          npm run lint --fix || true
-          npm run format || true
+          npm run lint --fix
+          npm run format -- --write
 
-      - name: Build Angular Project
-        run: npm run build --if-present
-
-      - name: Check for Changes
-        run: git status
+      - name: Verify Code Changes
+        run: |
+          git diff --exit-code || echo "Changes detected"  # Checks for changes in the repository
 
       - name: Commit and Push Changes
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
+          git status  # To verify changes before committing
           git commit -m "chore: auto commit changes via GitHub Actions" || echo "No changes to commit"
           git push
-          
